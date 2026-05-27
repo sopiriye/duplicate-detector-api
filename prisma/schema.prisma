@@ -110,7 +110,7 @@ model Merchant {
   userId                 String?        @unique @map("user_id") @db.Uuid
   businessName           String         @map("business_name") @db.VarChar(255)
   normalizedBusinessName String         @map("normalized_business_name") @db.VarChar(255)
-  businessEmail          String         @map("business_email") @db.VarChar(255)
+  businessEmail          String?        @map("business_email") @db.VarChar(255)
   phoneNumber            String?        @map("phone_number") @db.VarChar(50)
   cacNumber              String?        @map("cac_number") @db.VarChar(100)
   address                String?        @db.Text

@@ -17,14 +17,14 @@ export class RegisterMerchantDto {
   @IsEmail()
   email!: string;
 
-  @ApiProperty({ example: UserRole.MERCHANT, enum: UserRole })
-  @Equals(UserRole.MERCHANT, { message: 'role must be MERCHANT' })
-  role!: UserRole;
-
   @ApiProperty({ example: 'StrongPassword123', minLength: 8 })
   @IsString()
   @MinLength(8)
   password!: string;
+
+  @ApiProperty({ example: UserRole.MERCHANT, enum: UserRole })
+  @Equals(UserRole.MERCHANT, { message: 'role must be MERCHANT' })
+  role!: UserRole;
 
   @ApiPropertyOptional({ example: '+2348012345678' })
   @IsOptional()
