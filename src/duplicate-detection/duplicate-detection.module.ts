@@ -14,6 +14,6 @@ import { DuplicateScoreService } from './duplicate-score.service';
     DeterministicMatchingService,
     DuplicateScoreService,
   ],
-  exports: [DuplicateDetectionService],
+  exports: [DuplicateDetectionService, DuplicateNormalizationService],
 })
 export class DuplicateDetectionModule {}
