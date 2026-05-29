@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -340,6 +341,61 @@ export class MerchantsService {
             })),
           }
         : null,
+    };
+  }
+
+  async verify(merchantId: string, verifiedByUserId: string) {
+    // Merchant verification lookup flow:
+    // Load the current merchant verification state first so the route can reject invalid verification transitions clearly.
+    const merchant = await this.databaseService.merchant.findUnique({
+      where: { id: merchantId },
+      select: {
+        id: true,
+        businessName: true,
+        status: true,
+      },
+    });
+
+    if (!merchant) {
+      throw new NotFoundException('Merchant not found');
+    }
+
+    if (merchant.status === MerchantStatus.VERIFIED) {
+      throw new ConflictException('Merchant is already verified');
+    }
+
+    if (merchant.status !== MerchantStatus.PENDING_REVIEW) {
+      throw new BadRequestException(
+        'Only merchants pending review can be verified',
+      );
+    }
+
+    // Merchant verification persistence flow:
+    // Promote the merchant to verified status and persist the admin attribution needed for later review and login authorization.
+    const verifiedMerchant = await this.databaseService.merchant.update({
+      where: { id: merchantId },
+      data: {
+        status: MerchantStatus.VERIFIED,
+        verifiedAt: new Date(),
+        verifiedByUserId,
+        rejectedAt: null,
+        rejectedByUserId: null,
+        rejectionReason: null,
+      },
+      select: {
+        id: true,
+        businessName: true,
+        status: true,
+        verifiedAt: true,
+        verifiedByUserId: true,
+      },
+    });
+
+    // Merchant verification response flow:
+    // Return the minimal verification payload that confirms the merchant is now eligible for login under the auth rules.
+    return {
+      message: 'Merchant verified successfully',
+      merchant: verifiedMerchant,
     };
   }
 
