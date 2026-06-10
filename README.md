@@ -25,7 +25,6 @@ The system uses a deterministic-first matching engine and an optional OpenAI sec
 - [Reliability and Fallback Strategy](#reliability-and-fallback-strategy)
 - [Security Notes](#security-notes)
 - [Current Limitations](#current-limitations)
-- [What I Would Do With Another 8 Hours](#what-i-would-do-with-another-8-hours)
 - [AI-Assisted Development Reflection](#ai-assisted-development-reflection)
 
 ## Core Idea
@@ -860,46 +859,6 @@ This ensures the duplicate detector degrades gracefully instead of failing the m
 - The OpenAI layer depends on `OPENAI_API_KEY`; without it, the system uses deterministic matching only.
 - There is no queue/background worker yet; duplicate detection currently runs during the registration/detail flow.
 - Rate limiting is not currently implemented.
-
-## What I Would Do With Another 8 Hours
-
-1. **Move duplicate detection to a background job**
-
-   Merchant registration should respond immediately, then a worker can compute deterministic and LLM duplicate results asynchronously. This would improve perceived frontend response time and make the system more scalable.
-
-2. **Add automatic verification when no duplicate is found**
-
-   If deterministic and LLM checks return no likely duplicate above the threshold, the system could automatically verify the merchant or mark them as low-risk for faster admin approval.
-
-3. **Add merchant notification email**
-
-   When possible duplicates are detected, the admin could send an email notifying the merchant that their registration is under review because similar records already exist.
-
-4. **Add multi-signal duplicate detection**
-
-   Business name is useful, but future versions should also score:
-
-   - CAC number
-   - Email
-   - Phone number
-   - Address
-   - Business domain
-
-5. **Expose audit logs**
-
-   The schema already includes audit-log support. I would expose `GET /api/merchants/:id/audit-log` and write audit records for merchant creation, duplicate-check runs, LLM failures, and verification events.
-
-6. **Add rate limiting**
-
-   Merchant registration and duplicate-check flows should be rate-limited to prevent OpenAI abuse and reduce spam registrations.
-
-7. **Add stronger tests**
-
-   I would expand the test suite with integration tests for duplicate detection, admin verification, merchant login restriction, OpenAI fallback, and role-based access control.
-
-8. **Optimize database-level similarity search**
-
-   PostgreSQL `pg_trgm` and a GIN index on `normalized_business_name` would improve candidate lookup when the merchant dataset becomes larger.
 
 ## AI-Assisted Development Reflection
 
